@@ -16,7 +16,7 @@ Công cụ tính toán kế hoạch mua nhà tương tác, giúp bạn lên kế
 ## Cài đặt
 
 ```bash
-git clone https://github.com/YOUR_USERNAME/house-calculator.git
+git clone https://github.com/ntdang20th/house-calculator.git
 cd house-calculator
 npm install
 npm run dev
