@@ -1,0 +1,40 @@
+# Kế Hoạch Mua Nhà - Financial Calculator
+
+Công cụ tính toán kế hoạch mua nhà tương tác, giúp bạn lên kế hoạch tài chính với các kịch bản mua đứt hoặc trả góp.
+
+![Preview](preview.png)
+
+## Tính năng
+
+- Tính toán thời gian tích lũy đủ mua nhà (mua đứt & trả góp)
+- Tính toán lãi kép trên tiết kiệm
+- Dự đoán giá nhà tăng theo thời gian
+- Tính tiền góp hàng tháng khi vay ngân hàng
+- Giao diện tương tác với thanh trượt điều chỉnh
+- Responsive trên mobile & desktop
+
+## Cài đặt
+
+```bash
+git clone https://github.com/YOUR_USERNAME/house-calculator.git
+cd house-calculator
+npm install
+npm run dev
+```
+
+## Deploy lên GitHub Pages
+
+```bash
+npm run build
+npm run deploy
+```
+
+## Tech Stack
+
+- React 18
+- Vite
+- Tailwind CSS
+
+## License
+
+MIT
