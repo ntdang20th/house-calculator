@@ -12,12 +12,15 @@ function usePersistedState(key, defaultValue) {
     } catch { return defaultValue; }
   });
   const set = useCallback((v) => {
-    setValue(v);
-    try {
-      const saved = JSON.parse(localStorage.getItem(STORAGE_KEY) || "{}");
-      saved[key] = v;
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(saved));
-    } catch {}
+    setValue((prev) => {
+      const next = typeof v === "function" ? v(prev) : v;
+      try {
+        const saved = JSON.parse(localStorage.getItem(STORAGE_KEY) || "{}");
+        saved[key] = next;
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(saved));
+      } catch {}
+      return next;
+    });
   }, [key]);
   return [value, set];
 }
