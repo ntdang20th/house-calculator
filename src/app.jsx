@@ -59,22 +59,28 @@ function Header({ page, setPage }) {
           style={{ backgroundImage: "linear-gradient(90deg, #60a5fa, #a78bfa)" }}>
           Financial Planner
         </h1>
-        <nav className="flex gap-1 bg-gray-900 rounded-xl p-1">
-          {[
-            { id: "house", label: "Kế hoạch mua nhà", icon: "🏠" },
-            { id: "invest", label: "Phân bổ đầu tư", icon: "📊" },
-          ].map((tab) => (
-            <button key={tab.id} onClick={() => setPage(tab.id)}
-              className={`px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${
-                page === tab.id
-                  ? "bg-blue-600 text-white shadow-lg shadow-blue-600/20"
-                  : "text-gray-400 hover:text-white hover:bg-gray-800"
-              }`}>
-              <span className="mr-1.5">{tab.icon}</span>
-              <span className="hidden sm:inline">{tab.label}</span>
-            </button>
-          ))}
-        </nav>
+        <div className="flex items-center gap-2">
+          <nav className="flex gap-1 bg-gray-900 rounded-xl p-1">
+            {[
+              { id: "house", label: "Kế hoạch mua nhà", icon: "🏠" },
+              { id: "invest", label: "Phân bổ đầu tư", icon: "📊" },
+            ].map((tab) => (
+              <button key={tab.id} onClick={() => setPage(tab.id)}
+                className={`px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${
+                  page === tab.id
+                    ? "bg-blue-600 text-white shadow-lg shadow-blue-600/20"
+                    : "text-gray-400 hover:text-white hover:bg-gray-800"
+                }`}>
+                <span className="mr-1.5">{tab.icon}</span>
+                <span className="hidden sm:inline">{tab.label}</span>
+              </button>
+            ))}
+          </nav>
+          <button onClick={() => { if (confirm("Reset tất cả về mặc định?")) { localStorage.removeItem(STORAGE_KEY); location.reload(); } }}
+            className="p-2 rounded-lg text-gray-500 hover:text-red-400 hover:bg-gray-800 transition-colors text-xs" title="Reset về mặc định">
+            ↺
+          </button>
+        </div>
       </div>
     </header>
   );
@@ -247,6 +253,7 @@ const INIT = [
   { name: "Quỹ trái phiếu", amount: 3, color: "#4ade80", group: "A", risk: "Thấp", ret: "6-8%/năm", defRate: 7 },
   { name: "Quỹ mở cổ phiếu / ETF", amount: 2.5, color: "#3b82f6", group: "B", risk: "Trung bình", ret: "10-15%/năm", defRate: 12 },
   { name: "Crypto (BTC + ETH)", amount: 3, color: "#f59e0b", group: "B", risk: "Cao", ret: "20-50%+", defRate: 25 },
+  { name: "Vàng", amount: 1, color: "#fbbf24", group: "B", risk: "Trung bình", ret: "8-12%/năm", defRate: 10 },
   { name: "Altcoin / Đầu cơ", amount: 1, color: "#ef4444", group: "C", risk: "Rất cao", ret: "x2-x10 hoặc mất", defRate: 0 },
   { name: "Tự thưởng & phát triển", amount: 2, color: "#a78bfa", group: "D", risk: "—", ret: "—", defRate: 0 },
 ];
