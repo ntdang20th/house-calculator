@@ -1,7 +1,32 @@
 import { useState, useMemo, useEffect, useCallback } from "react";
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from "recharts";
 
-const fmt = (n) => Math.round(n).toLocaleString("vi-VN");
+const fmt = (n) => {
+  const v = Math.round(n);
+  if (Math.abs(v) >= 1000) {
+    const ty = v / 1000;
+    return ty % 1 === 0 ? `${ty.toLocaleString("vi-VN")} tỷ` : `${ty.toLocaleString("vi-VN", { maximumFractionDigits: 2 })} tỷ`;
+  }
+  return `${v.toLocaleString("vi-VN")} triệu`;
+};
+const fmtShort = (n) => {
+  const v = Math.round(n);
+  if (Math.abs(v) >= 1000) {
+    const ty = v / 1000;
+    return ty % 1 === 0 ? `${ty} tỷ` : `${(ty).toFixed(2)} tỷ`;
+  }
+  return `${v.toLocaleString("vi-VN")} tr`;
+};
+const fmtTr = (n) => Math.round(n).toLocaleString("vi-VN");
+const fmtMoney = (n) => {
+  const v = Math.round(n);
+  if (Math.abs(v) >= 1000) {
+    const ty = v / 1000;
+    return ty % 1 === 0 ? `${ty.toLocaleString("vi-VN")} tỷ` : `${ty.toLocaleString("vi-VN", { maximumFractionDigits: 2 })} tỷ`;
+  }
+  return `${v.toLocaleString("vi-VN")} triệu`;
+};
+
 const STORAGE_KEY = "financial-planner-state";
 
 function usePersistedState(key, defaultValue) {
@@ -58,13 +83,12 @@ function Header({ page, setPage }) {
 /* ===================== SLIDER ===================== */
 function Slider({ label, value, set, min, max, step, unit, color = "#3b82f6" }) {
   const pct = ((value - min) / (max - min)) * 100;
+  const display = unit === "triệu" ? fmt(value) : `${fmtTr(value)} ${unit}`;
   return (
     <div className="mb-4">
       <div className="flex justify-between text-sm mb-1.5">
         <span className="text-gray-300">{label}</span>
-        <span className="text-white font-semibold">
-          {typeof value === "number" ? fmt(value) : value} {unit}
-        </span>
+        <span className="text-white font-semibold">{display}</span>
       </div>
       <input type="range" min={min} max={max} step={step} value={value}
         onChange={(e) => set(Number(e.target.value))}
@@ -155,8 +179,8 @@ function HouseCalculator() {
             <>
               <div className="text-4xl font-bold text-emerald-400 mb-1">Năm thứ {fullBuyYear.year}</div>
               <p className="text-sm text-gray-400">
-                Giá nhà: <span className="text-white">{fmt(fullBuyYear.housePrice)} tr</span> ·
-                Tích lũy: <span className="text-emerald-300">{fmt(fullBuyYear.totalSaved)} tr</span>
+                Giá nhà: <span className="text-white">{fmt(fullBuyYear.housePrice)}</span> ·
+                Tích lũy: <span className="text-emerald-300">{fmt(fullBuyYear.totalSaved)}</span>
               </p>
             </>
           ) : <div className="text-2xl font-bold text-red-400">Trên 10 năm</div>}
@@ -167,12 +191,12 @@ function HouseCalculator() {
             <>
               <div className="text-4xl font-bold text-blue-400 mb-1">Năm thứ {loanBuyYear.year}</div>
               <p className="text-sm text-gray-400">
-                Trả trước: <span className="text-white">{fmt(loanBuyYear.downPayment)} tr</span> ·
-                Góp/tháng: <span className="text-blue-300">{fmt(loanBuyYear.monthlyPayment)} tr</span>
+                Trả trước: <span className="text-white">{fmt(loanBuyYear.downPayment)}</span> ·
+                Góp/tháng: <span className="text-blue-300">{fmt(loanBuyYear.monthlyPayment)}</span>
               </p>
               <p className="text-sm text-yellow-500 mt-1">
-                Tổng trả NH: {fmt(loanBuyYear.totalLoanPaid)} tr
-                (gốc {fmt(loanBuyYear.loanAmount)} + lãi {fmt(loanBuyYear.totalLoanPaid - loanBuyYear.loanAmount)})
+                Tổng trả NH: {fmt(loanBuyYear.totalLoanPaid)}
+                {" "}(gốc {fmt(loanBuyYear.loanAmount)} + lãi {fmt(loanBuyYear.totalLoanPaid - loanBuyYear.loanAmount)})
               </p>
             </>
           ) : <div className="text-2xl font-bold text-red-400">Trên 10 năm</div>}
@@ -195,14 +219,14 @@ function HouseCalculator() {
             {data.map((r) => (
               <tr key={r.year} className="border-b border-gray-800/40 hover:bg-gray-800/30 transition-colors">
                 <td className="p-3 font-medium">Năm {r.year}</td>
-                <td className="p-3 text-right font-mono text-blue-300">{fmt(r.totalSaved)}</td>
-                <td className="p-3 text-right font-mono text-orange-300">{fmt(r.housePrice)}</td>
-                <td className="p-3 text-right font-mono text-purple-300">{fmt(r.downPayment)}</td>
+                <td className="p-3 text-right font-mono text-blue-300">{fmtShort(r.totalSaved)}</td>
+                <td className="p-3 text-right font-mono text-orange-300">{fmtShort(r.housePrice)}</td>
+                <td className="p-3 text-right font-mono text-purple-300">{fmtShort(r.downPayment)}</td>
                 <td className="p-3 text-center">
-                  {r.canBuyFull ? <span className="text-emerald-400">✅</span> : <span className="text-red-400 font-mono text-xs">−{fmt(-r.surplus)}</span>}
+                  {r.canBuyFull ? <span className="text-emerald-400">✅</span> : <span className="text-red-400 font-mono text-xs">−{fmtShort(-r.surplus)}</span>}
                 </td>
                 <td className="p-3 text-center">
-                  {r.canBuyLoan ? <span className="text-emerald-400">✅</span> : <span className="text-red-400 font-mono text-xs">−{fmt(-r.surplusDown)}</span>}
+                  {r.canBuyLoan ? <span className="text-emerald-400">✅</span> : <span className="text-red-400 font-mono text-xs">−{fmtShort(-r.surplusDown)}</span>}
                 </td>
               </tr>
             ))}
@@ -278,7 +302,7 @@ function InvestmentPortfolio() {
       return (
         <div className="bg-gray-800 border border-gray-700 rounded-lg p-3 text-sm shadow-xl">
           <p className="font-semibold text-white">{d.name}</p>
-          <p className="text-gray-300">{fmt(d.amount * 1000000)} đ/tháng ({((d.amount / total) * 100).toFixed(0)}%)</p>
+          <p className="text-gray-300">{d.amount} triệu/tháng ({((d.amount / total) * 100).toFixed(0)}%)</p>
         </div>
       );
     }
@@ -292,7 +316,7 @@ function InvestmentPortfolio() {
           style={{ backgroundImage: "linear-gradient(90deg, #60a5fa, #f59e0b)" }}>
           Phân Bổ Danh Mục Đầu Tư
         </h2>
-        <p className="text-gray-400 text-sm">Tổng phân bổ: {fmt(total * 1000000)} đ/tháng · Kéo thanh trượt để điều chỉnh</p>
+        <p className="text-gray-400 text-sm">Tổng phân bổ: {fmt(total)}/tháng · Kéo thanh trượt để điều chỉnh</p>
       </div>
 
       <div className="grid md:grid-cols-2 gap-6 mb-6">
@@ -320,7 +344,7 @@ function InvestmentPortfolio() {
             <div key={key} className="bg-gray-900 rounded-xl border border-gray-800 p-4">
               <div className="flex justify-between items-center mb-3">
                 <h3 className="text-xs font-semibold uppercase tracking-widest" style={{ color: g.color }}>{g.label}</h3>
-                <span className="text-sm text-gray-400">{fmt(g.total * 1000000)} đ ({total > 0 ? ((g.total / total) * 100).toFixed(0) : 0}%)</span>
+                <span className="text-sm text-gray-400">{fmt(g.total)} ({total > 0 ? ((g.total / total) * 100).toFixed(0) : 0}%)</span>
               </div>
               {g.items.map((it) => {
                 const idx = items.indexOf(it);
@@ -347,7 +371,6 @@ function InvestmentPortfolio() {
         </div>
       </div>
 
-      {/* Toggle custom rates */}
       <div className="bg-gray-900 rounded-2xl border border-gray-800 p-5 mb-6">
         <div className="flex justify-between items-center mb-3">
           <h3 className="text-xs font-semibold text-cyan-400 uppercase tracking-widest">Lãi suất kỳ vọng (cho dự phóng)</h3>
@@ -388,15 +411,13 @@ function InvestmentPortfolio() {
         )}
       </div>
 
-      {/* Projections */}
       <div className="bg-gray-900 rounded-2xl border border-gray-800 p-5 mb-6">
         <h3 className="text-xs font-semibold text-yellow-400 uppercase tracking-widest mb-4">Dự phóng tài sản tích lũy (lãi kép)</h3>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
           {projections.map((p) => (
             <div key={p.year} className="bg-gray-800/50 rounded-xl p-4 text-center">
               <div className="text-gray-400 text-sm mb-1">Sau {p.year} năm</div>
-              <div className="text-xl md:text-2xl font-bold text-yellow-400">{fmt(Math.round(p.value))} tr</div>
-              <div className="text-xs text-gray-500 mt-1">≈ {(p.value / 1000).toFixed(1)} tỷ</div>
+              <div className="text-xl md:text-2xl font-bold text-yellow-400">{fmt(Math.round(p.value))}</div>
             </div>
           ))}
         </div>
@@ -405,7 +426,6 @@ function InvestmentPortfolio() {
         </p>
       </div>
 
-      {/* Summary table */}
       <div className="bg-gray-900 rounded-2xl border border-gray-800 p-5">
         <h3 className="text-xs font-semibold text-blue-400 uppercase tracking-widest mb-3">Tổng kết phân bổ</h3>
         <div className="overflow-x-auto">
@@ -425,14 +445,14 @@ function InvestmentPortfolio() {
                     <div className="w-2 h-2 rounded-full" style={{ background: it.color }} />
                     {it.name}
                   </td>
-                  <td className="p-2 text-right font-mono">{it.amount} tr</td>
+                  <td className="p-2 text-right font-mono">{fmt(it.amount)}</td>
                   <td className="p-2 text-right font-mono">{total > 0 ? ((it.amount / total) * 100).toFixed(0) : 0}%</td>
                   <td className="p-2 text-right text-gray-400">{it.risk}</td>
                 </tr>
               ))}
               <tr className="font-semibold">
                 <td className="p-2">Tổng</td>
-                <td className="p-2 text-right font-mono">{total} tr</td>
+                <td className="p-2 text-right font-mono">{fmt(total)}</td>
                 <td className="p-2 text-right">100%</td>
                 <td></td>
               </tr>
